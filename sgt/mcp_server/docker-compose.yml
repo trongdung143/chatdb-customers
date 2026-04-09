@@ -7,8 +7,6 @@ services:
     image: chatdb-mcp-server-sgt:latest
     environment:
       - PYTHONUNBUFFERED=1
-    ports:
-      - "8123:8123"
     networks:
       - chat-db
 

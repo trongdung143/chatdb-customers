@@ -7,8 +7,6 @@ services:
     image: chatdb-middleware-itc:latest
     environment:
       - PYTHONUNBUFFERED=1
-    ports:
-      - "8001:8001"
     networks:
       - chat-db
 
