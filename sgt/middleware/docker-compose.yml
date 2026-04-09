@@ -1,0 +1,17 @@
+services:
+  chatdb-middleware-sgt:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    image: chatdb-middleware-sgt:latest
+    environment:
+      - PYTHONUNBUFFERED=1
+    ports:
+      - "8001:8001"
+    networks:
+      - chat-db
+
+networks:
+  chat-db:
+    external: true

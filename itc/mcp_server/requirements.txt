@@ -1,0 +1,5 @@
+fastmcp
+langchain
+langchain-community 
+langchain_openai 
+python-dotenv
