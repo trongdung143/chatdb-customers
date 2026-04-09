@@ -7,6 +7,9 @@ import re
 import sqlparse
 
 
+BASE_URL = "https://itcshop.iteccom.vn/"
+
+
 def dataframe_to_json(df: pd.DataFrame):
 
     if df is None or df.empty:
@@ -28,46 +31,47 @@ def dataframe_to_json(df: pd.DataFrame):
 
         df.columns = new_cols
 
-    # df = df.head(max_rows)
-
     df = df.astype(object)
 
     def convert_value(v):
 
-        # None
         if v is None:
             return None
 
-        # NaN / NaT
         if pd.isna(v):
             return None
 
-        # pandas timestamp
         if isinstance(v, pd.Timestamp):
             return v.strftime("%Y-%m-%d %H:%M:%S")
 
-        # python datetime
         if isinstance(v, (datetime, date)):
             return v.isoformat()
 
-        # Decimal
         if isinstance(v, Decimal):
             return float(v)
 
-        # numpy numbers
         if isinstance(v, (np.integer,)):
             return int(v)
 
         if isinstance(v, (np.floating,)):
             return float(v)
 
-        # UUID
         if isinstance(v, uuid.UUID):
             return str(v)
 
         return v
 
     df = df.apply(lambda col: col.map(convert_value))
+
+    for col in df.columns:
+        if col.lower() in ["cover", "path"]:
+            df[col] = df[col].apply(
+                lambda v: (
+                    BASE_URL + v.lstrip("/")
+                    if isinstance(v, str) and v and not v.startswith("http")
+                    else v
+                )
+            )
 
     return df.to_dict(orient="records")
 
