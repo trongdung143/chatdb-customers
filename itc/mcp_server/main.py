@@ -147,26 +147,19 @@ async def get_order(phone: str) -> dict:
 
 
 @mcp.tool
-async def get_detail_from_html(urls: DetailUrls) -> dict:
+async def get_detail_from_html(url: str) -> dict:
     """
-    Lấy thông tin chi tiết sản phẩm từ các URL HTML.
-    ví dụ: {"camera H2YAD", "https://example/index.html", "các sản phầm khác": "đường dẫn"}
+    Lấy thông tin chi tiết sản phẩm từ file HTML khi cần thông số kĩ thuật.
 
     Args:
-        urls: Dict ánh xạ giữa định danh và URL.
-              - key (str): định danh duy nhất do caller (AI) tự tạo
-                           để theo dõi và đối chiếu kết quả trả về
-              - value (str): URL tới trang HTML cần lấy dữ liệu
+        url: url file html chứa thông tin kĩ thuật của sản phẩm.
 
     Returns:
         Kết quả thông tin chi tiết của sản phẩm.
     """
-    result = {}
-    for id, url in urls.urls.items():
-        loader = WebBaseLoader(url)
-        documents = loader.load()
-        result[id] = documents[0].page_content
-    return {"result": result}
+    loader = WebBaseLoader(url)
+    documents = loader.load()
+    return {"result": documents[0].page_content}
 
 
 loop = asyncio.get_event_loop()
