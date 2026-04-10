@@ -4,6 +4,8 @@ from sql_service import SQLService
 from conn_db import Database
 import signal
 import asyncio
+from langchain_community.document_loaders import WebBaseLoader
+
 
 mcp = FastMCP("chatdb-mcp-server")
 db = Database()
@@ -37,11 +39,11 @@ async def insert_order(
         products: Sản phẩm (tên, số lượng, mã sản phẩm)
 
     Returns:
-        Id của order vừa tạo.
+        Kết quả xử lý.
     """
     result = await sql_service.execute(
-        "INSERT INTO OrderAis (FullName, Email, Phone, Address, Note, Products, CreatedDate) "
-        "VALUES (:full_name, :email, :phone, :address, :note, :products, GETDATE())",
+        "INSERT INTO OrderAis (FullName, Email, Phone, Address, Note, Products, CreatedDate, Status) "
+        "VALUES (:full_name, :email, :phone, :address, :note, :products, GETDATE(), :status)",
         {
             "full_name": full_name,
             "email": email,
@@ -49,6 +51,7 @@ async def insert_order(
             "address": address,
             "note": note,
             "products": products,
+            "status": 1,
         },
     )
     if result["success"]:
@@ -79,7 +82,7 @@ async def update_order(
         products: Sản phẩm (tên, số lượng, mã sản phẩm)
 
     Returns:
-        Số dòng bị ảnh hưởng.
+        Kết quả xử lý.
     """
     result = await sql_service.execute(
         "UPDATE OrderAis SET FullName=:full_name, Email=:email, Phone=:phone, "
@@ -101,19 +104,20 @@ async def update_order(
 
 
 @mcp.tool
-async def remove_order(id: int) -> dict:
+async def remove_order(id: int, reject_reason: str) -> dict:
     """
     Xóa một order theo Id.
 
     Args:
         id: Id của order cần xóa
+        reject_reason: lý do hủy đơn hàng (nếu có)
 
     Returns:
-        Số dòng bị ảnh hưởng.
+        Kết quả xử lý.
     """
     result = await sql_service.execute(
-        "DELETE FROM OrderAis WHERE Id=:id",
-        {"id": id},
+        "UPDATE OrderAis SET Status=:status, RejectReason:=reject_reason WHERE Id=:id",
+        {"id": id, "status": 3, "reject_reason": reject_reason},
     )
     if result["rowcount"] == 0:
         return {"result": "Không tìm thấy order để xóa"}
@@ -140,6 +144,28 @@ async def get_order(phone: str) -> dict:
     if result and len(result) > 0:
         return {"result": result}
     return {"result": []}
+
+
+async def get_detail_from_html(urls: dict[str, str]) -> dict:
+    """
+    Lấy thông tin chi tiết sản phẩm từ các URL HTML.
+    ví dụ: {"camera H2YAD", "https://example/index.html", "các sản phầm khác": "đường dẫn"}
+
+    Args:
+        urls: Dict ánh xạ giữa định danh và URL.
+              - key (str): định danh duy nhất do caller (AI) tự tạo
+                           để theo dõi và đối chiếu kết quả trả về
+              - value (str): URL tới trang HTML cần lấy dữ liệu
+
+    Returns:
+        Kết quả thông tin chi tiết của sản phẩm.
+    """
+    result = {}
+    for id, url in urls.items():
+        loader = WebBaseLoader(url)
+        documents = loader.load()
+        result[id] = documents[0].page_content
+    return {"result": result}
 
 
 loop = asyncio.get_event_loop()
