@@ -163,6 +163,7 @@ async def get_detail_from_html(url: str) -> dict:
         documents = loader.load()
         return {"result": documents[0].page_content}
     except Exception as e:
+        print(e)
         return {"result": "Không thể lấy thông tin kĩ thuật của sản phẩm"}
 
 
