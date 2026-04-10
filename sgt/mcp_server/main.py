@@ -10,7 +10,7 @@ mcp = FastMCP("chatdb-mcp-server")
 
 
 @mcp.tool
-async def get_time() -> dict[str, str]:
+async def get_time() -> dict:
     """
     Trả về thời gian hiện tại của hệ thống.
     Dùng khi cần mốc thời gian hiện tại để phục vụ việc suy luận,

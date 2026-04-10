@@ -11,7 +11,7 @@ sql_service = SQLService(db)
 
 
 @mcp.tool
-async def get_time() -> dict[str, str]:
+async def get_time() -> dict:
     """
     Trả về thời gian hiện tại của hệ thống.
     Dùng khi cần mốc thời gian hiện tại để phục vụ việc suy luận,
@@ -24,7 +24,7 @@ async def get_time() -> dict[str, str]:
 @mcp.tool
 async def insert_order(
     full_name: str, email: str, phone: str, address: str, note: str, products: str
-) -> str:
+) -> dict:
     """
     Thêm mới một order.
 
@@ -52,8 +52,8 @@ async def insert_order(
         },
     )
     if result["success"]:
-        return "Xử lý thành công"
-    return "Xử lý thất bại"
+        return {"result": "Xử lý thành công"}
+    return {"result": "Xử lý thất bại"}
 
 
 @mcp.tool
@@ -65,7 +65,7 @@ async def update_order(
     address: str,
     note: str,
     products: str,
-) -> str:
+) -> dict:
     """
     Cập nhật thông tin một order theo Id.
 
@@ -95,13 +95,13 @@ async def update_order(
         },
     )
     if result["rowcount"] == 0:
-        return "Không tìm thấy order để cập nhật"
+        return {"result": "Không tìm thấy order để cập nhật"}
 
-    return "Cập nhật thành công"
+    return {"result": "Cập nhật thành công"}
 
 
 @mcp.tool
-async def remove_order(id: int) -> str:
+async def remove_order(id: int) -> dict:
     """
     Xóa một order theo Id.
 
@@ -116,9 +116,9 @@ async def remove_order(id: int) -> str:
         {"id": id},
     )
     if result["rowcount"] == 0:
-        return "Không tìm thấy order để xóa"
+        return {"result": "Không tìm thấy order để xóa"}
 
-    return "Xóa thành công"
+    return {"result": "Xóa thành công"}
 
 
 @mcp.tool
@@ -138,8 +138,8 @@ async def get_order(phone: str) -> dict:
         {"phone": phone},
     )
     if result and len(result) > 0:
-        return result
-    return []
+        return {"result": result}
+    return {"result": []}
 
 
 loop = asyncio.get_event_loop()
