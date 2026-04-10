@@ -157,9 +157,13 @@ async def get_detail_from_html(url: str) -> dict:
     Returns:
         Kết quả thông tin chi tiết của sản phẩm.
     """
-    loader = WebBaseLoader(url)
-    documents = loader.load()
-    return {"result": documents[0].page_content}
+    try:
+        BASE_URL = "https://itcshop.iteccom.vn/"
+        loader = WebBaseLoader(BASE_URL + url)
+        documents = loader.load()
+        return {"result": documents[0].page_content}
+    except Exception as e:
+        return {"result": "Không thể lấy thông tin kĩ thuật của sản phẩm"}
 
 
 loop = asyncio.get_event_loop()
