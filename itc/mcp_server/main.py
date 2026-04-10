@@ -149,13 +149,13 @@ async def get_order(phone: str) -> dict:
 @mcp.tool
 async def get_detail_from_html(url: str) -> dict:
     """
-    Lấy thông tin chi tiết sản phẩm từ file HTML khi cần thông số kĩ thuật.
+    Lấy thông tin sản phẩm từ file HTML.
 
     Args:
-        url: url file html chứa thông tin kĩ thuật của sản phẩm.
+        url: đường dẫn file html
 
     Returns:
-        Kết quả thông tin chi tiết của sản phẩm.
+        Kết quả thông tin của sản phẩm.
     """
     try:
         BASE_URL = "https://itcshop.iteccom.vn/"
