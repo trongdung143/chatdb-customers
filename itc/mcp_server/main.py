@@ -146,6 +146,7 @@ async def get_order(phone: str) -> dict:
     return {"result": []}
 
 
+@mcp.tool
 async def get_detail_from_html(urls: dict[str, str]) -> dict:
     """
     Lấy thông tin chi tiết sản phẩm từ các URL HTML.
