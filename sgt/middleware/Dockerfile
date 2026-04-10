@@ -24,6 +24,7 @@ RUN sed -i 's/\[openssl_init\]/[openssl_init]\nssl_conf = ssl_sect/' /etc/ssl/op
 
 RUN pip install uv
 COPY requirements.txt .
+RUN uv init
 RUN uv add -r requirements.txt
 COPY . .
 ENV PORT=8001
