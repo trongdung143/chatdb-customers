@@ -6,20 +6,21 @@ class SQLService:
     def __init__(self, database):
         self.database = database
 
-    async def execute(self, sql: str) -> dict | bool:
-        self._validate_query(sql)
+    async def execute(self, sql: str, params: dict | None = None) -> dict | bool:
 
         try:
             async with self.database.get_session() as session:
-                result = await session.execute(text(sql))
+                result = await session.execute(text(sql), params or {})
 
                 if result.returns_rows:
                     rows = result.fetchall()
                     df = pd.DataFrame(rows, columns=result.keys())
                     return df.to_dict(orient="records")
-                else:
-                    await session.commit()
-                    return True
+
+                await session.commit()
+
+                return {"success": True, "rowcount": result.rowcount}
 
         except Exception as e:
-            return False
+            await session.rollback()
+            return {"success": False, "error": str(e), "rowcount": 0}

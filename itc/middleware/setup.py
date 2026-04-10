@@ -17,3 +17,4 @@ AES_IV = os.getenv("AES_IV")
 AES_KEY = bytes.fromhex(os.getenv("AES_KEY"))
 HMAC_KEY = bytes.fromhex(os.getenv("HMAC_KEY"))
 DB_CONNECTION_STRING = os.getenv("DB_CONNECTION_STRING")
+

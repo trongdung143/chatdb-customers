@@ -51,7 +51,7 @@ async def insert_order(
             "products": products,
         },
     )
-    if result:
+    if result["success"]:
         return "Xử lý thành công"
     return "Xử lý thất bại"
 
@@ -94,9 +94,10 @@ async def update_order(
             "products": products,
         },
     )
-    if result:
-        return "Xử lý thành công"
-    return "Xử lý thất bại"
+    if result["rowcount"] == 0:
+        return "Không tìm thấy order để cập nhật"
+
+    return "Cập nhật thành công"
 
 
 @mcp.tool
@@ -114,9 +115,10 @@ async def remove_order(id: int) -> str:
         "DELETE FROM OrderAis WHERE Id=:id",
         {"id": id},
     )
-    if result:
-        return "Xử lý thành công"
-    return "Xử lý thất bại"
+    if result["rowcount"] == 0:
+        return "Không tìm thấy order để xóa"
+
+    return "Xóa thành công"
 
 
 @mcp.tool
@@ -135,9 +137,9 @@ async def get_order(phone: str) -> dict:
         "FROM OrderAis WHERE Phone=:phone",
         {"phone": phone},
     )
-    if result:
+    if result and len(result) > 0:
         return result
-    return "Xử lý thất bại"
+    return []
 
 
 loop = asyncio.get_event_loop()
