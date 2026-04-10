@@ -5,7 +5,7 @@ from conn_db import Database
 import signal
 import asyncio
 from langchain_community.document_loaders import WebBaseLoader
-
+from schema import DetailUrls
 
 mcp = FastMCP("chatdb-mcp-server")
 db = Database()
@@ -147,7 +147,7 @@ async def get_order(phone: str) -> dict:
 
 
 @mcp.tool
-async def get_detail_from_html(urls: dict[str, str]) -> dict:
+async def get_detail_from_html(urls: DetailUrls) -> dict:
     """
     Lấy thông tin chi tiết sản phẩm từ các URL HTML.
     ví dụ: {"camera H2YAD", "https://example/index.html", "các sản phầm khác": "đường dẫn"}
@@ -162,7 +162,7 @@ async def get_detail_from_html(urls: dict[str, str]) -> dict:
         Kết quả thông tin chi tiết của sản phẩm.
     """
     result = {}
-    for id, url in urls.items():
+    for id, url in urls.urls.items():
         loader = WebBaseLoader(url)
         documents = loader.load()
         result[id] = documents[0].page_content
