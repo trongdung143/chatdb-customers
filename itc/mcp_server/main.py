@@ -27,7 +27,7 @@ async def insert_order(
     full_name: str, email: str, phone: str, address: str, note: str, products: str
 ) -> dict:
     """
-    Thêm mới một order.
+    Thêm mới một đơn hàng.
 
     Args:
         full_name: Họ tên khách hàng
@@ -69,10 +69,10 @@ async def update_order(
     products: str,
 ) -> dict:
     """
-    Cập nhật thông tin một order theo Id.
+    Cập nhật thông tin một đơn hàng theo Id.
 
     Args:
-        id: Một số nguyên Id của order cần cập nhật
+        id: Một số nguyên Id của đơn hàng cần cập nhật
         full_name: Họ tên khách hàng
         email: Email khách hàng
         phone: Số điện thoại
@@ -97,7 +97,7 @@ async def update_order(
         },
     )
     if result["rowcount"] == 0:
-        return {"result": "Không tìm thấy order để cập nhật"}
+        return {"result": "Không tìm thấy đơn hàng để cập nhật"}
 
     return {"result": "Cập nhật thành công"}
 
@@ -105,11 +105,11 @@ async def update_order(
 @mcp.tool
 async def remove_order(phone: str, reject_reason: str, id: str) -> dict:
     """
-    Xóa một order theo số điện thoại và Id của đơn hàng.
+    Xóa một đơn hàng theo số điện thoại và Id của đơn hàng.
 
     Args:
 
-        phone: Số điện thoại của order cần xóa
+        phone: Số điện thoại của đơn hàng cần xóa
         reject_reason: lý do hủy đơn hàng (nếu có)
         id: Id của đơn hàng cần xóa
 
@@ -121,7 +121,7 @@ async def remove_order(phone: str, reject_reason: str, id: str) -> dict:
         {"phone": phone, "status": 3, "reject_reason": reject_reason, "id": id},
     )
     if result["rowcount"] == 0:
-        return {"result": "Không tìm thấy order để xóa"}
+        return {"result": "Không tìm thấy đơn hàng để xóa"}
 
     return {"result": "Xóa thành công"}
 
@@ -129,13 +129,13 @@ async def remove_order(phone: str, reject_reason: str, id: str) -> dict:
 @mcp.tool
 async def get_order(phone: str) -> dict:
     """
-    Dùng để lấy toàn bộ order theo số điện thoại hoặc lấy id để dùng.
+    Dùng để lấy toàn bộ đơn hàng theo số điện thoại hoặc lấy id để dùng.
 
     Args:
-        phone: số điện thoại dùng để lấy order
+        phone: số điện thoại dùng để lấy đơn hàng
 
     Returns:
-        Các order theo số điện thoại.
+        Các đơn hàng theo số điện thoại.
     """
     result = await sql_service.execute(
         "SELECT * FROM OrderAis WHERE Phone=:phone",
