@@ -161,6 +161,8 @@ async def get_detail_from_html(url: str) -> dict:
         if url.startswith("https://itcshop.iteccom.vn/"):
             url = url.replace("https://itcshop.iteccom.vn/", "")
         BASE_URL = "http://192.168.1.100:7295/"
+        url = BASE_URL + url
+        print(url)
         loader = WebBaseLoader(BASE_URL + url)
         documents = loader.load()
         return {"result": documents[0].page_content}
