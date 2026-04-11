@@ -21,7 +21,7 @@ async def get_time() -> dict:
 
 
 @mcp.tool
-async def get_business_rules_for_sgt(topic: str) -> dict:
+async def get_business_rules(topic: str) -> dict:
     """
     Lấy thông tin quy tắc nghiệp vụ của hệ thống chương trình thẻ thành viên.
 
