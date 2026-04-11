@@ -150,7 +150,6 @@ async def get_order(phone: str) -> dict:
 async def get_detail_from_html(url: str) -> dict:
     """
     Lấy thông tin sản phẩm từ file HTML.
-    ví dụ: /media/product/2026/03/08/FjoCaTgiDo.html
 
     Args:
         url: đường dẫn file html
@@ -159,6 +158,8 @@ async def get_detail_from_html(url: str) -> dict:
         Kết quả thông tin của sản phẩm.
     """
     try:
+        if url.startswith("https://itcshop.iteccom.vn/"):
+            url = url.replace("https://itcshop.iteccom.vn/", "")
         BASE_URL = "http://192.168.1.100:7295/"
         loader = WebBaseLoader(BASE_URL + url)
         documents = loader.load()
