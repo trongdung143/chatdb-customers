@@ -103,20 +103,22 @@ async def update_order(
 
 
 @mcp.tool
-async def remove_order(phone: str, reject_reason: str) -> dict:
+async def remove_order(phone: str, reject_reason: str, id: str) -> dict:
     """
-    Xóa một order theo số điện thoại.
+    Xóa một order theo số điện thoại và Id của đơn hàng.
 
     Args:
+
         phone: Số điện thoại của order cần xóa
         reject_reason: lý do hủy đơn hàng (nếu có)
+        id: Id của đơn hàng cần xóa
 
     Returns:
         Kết quả xử lý.
     """
     result = await sql_service.execute(
-        "UPDATE OrderAis SET Status=:status, RejectReason=:reject_reason WHERE Phone=:phone",
-        {"phone": phone, "status": 3, "reject_reason": reject_reason},
+        "UPDATE OrderAis SET Status=:status, RejectReason=:reject_reason WHERE Phone=:phone AND Id=:id",
+        {"phone": phone, "status": 3, "reject_reason": reject_reason, "id": id},
     )
     if result["rowcount"] == 0:
         return {"result": "Không tìm thấy order để xóa"}
