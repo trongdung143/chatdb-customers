@@ -5,7 +5,6 @@ from conn_db import Database
 import signal
 import asyncio
 from langchain_community.document_loaders import WebBaseLoader
-from schema import DetailUrls
 
 mcp = FastMCP("chatdb-mcp-server")
 db = Database()
@@ -158,7 +157,7 @@ async def get_detail_from_html(url: str) -> dict:
         Kết quả thông tin của sản phẩm.
     """
     try:
-        BASE_URL = "https://itcshop.iteccom.vn/"
+        BASE_URL = "http://192.168.1.100:7295/"
         loader = WebBaseLoader(BASE_URL + url)
         documents = loader.load()
         return {"result": documents[0].page_content}
