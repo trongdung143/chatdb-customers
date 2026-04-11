@@ -72,7 +72,7 @@ async def update_order(
     Cập nhật thông tin một order theo Id.
 
     Args:
-        id: Id của order cần cập nhật
+        id: Một số nguyên Id của order cần cập nhật
         full_name: Họ tên khách hàng
         email: Email khách hàng
         phone: Số điện thoại
@@ -150,6 +150,7 @@ async def get_order(phone: str) -> dict:
 async def get_detail_from_html(url: str) -> dict:
     """
     Lấy thông tin sản phẩm từ file HTML.
+    ví dụ: /media/product/2026/03/08/FjoCaTgiDo.html
 
     Args:
         url: đường dẫn file html
