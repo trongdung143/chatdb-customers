@@ -116,6 +116,13 @@ async def remove_order(phone: str, reject_reason: str, id: str) -> dict:
     Returns:
         Kết quả xử lý.
     """
+    check_removed = await sql_service.execute(
+        "SELECT * FROM OrderAis WHERE Phone=:phone AND Id=:id AND Status=3",
+        {"phone": phone, "id": id},
+    )
+    if check_removed and len(check_removed) > 0:
+        return {"result": "Đơn hàng đã bị xóa trước đó hãy kiểm tra lại Id"}
+
     result = await sql_service.execute(
         "UPDATE OrderAis SET Status=:status, RejectReason=:reject_reason WHERE Phone=:phone AND Id=:id",
         {"phone": phone, "status": 3, "reject_reason": reject_reason, "id": id},
