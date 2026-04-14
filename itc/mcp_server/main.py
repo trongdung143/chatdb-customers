@@ -116,11 +116,15 @@ async def remove_order(phone: str, reject_reason: str, id: str) -> dict:
     Returns:
         Kết quả xử lý.
     """
-    check_removed = await sql_service.execute(
-        "SELECT * FROM OrderAis WHERE Phone=:phone AND Id=:id AND Status=3",
+    check = await sql_service.execute(
+        "SELECT * FROM OrderAis WHERE Phone=:phone AND Id=:id",
         {"phone": phone, "id": id},
     )
-    if check_removed and len(check_removed) > 0:
+
+    if not check:
+        return {"result": "Không tìm thấy đơn hàng để xóa kiểm lại Id"}
+
+    if check and check[0]["Status"] == 3:
         return {"result": "Đơn hàng đã bị xóa trước đó hãy kiểm tra lại Id"}
 
     result = await sql_service.execute(
@@ -136,7 +140,7 @@ async def remove_order(phone: str, reject_reason: str, id: str) -> dict:
 @mcp.tool
 async def get_order(phone: str) -> dict:
     """
-    Dùng để lấy toàn bộ đơn hàng theo số điện thoại hoặc lấy id để dùng.
+    Dùng để lấy toàn bộ đơn hàng theo số điện thoại hoặc lấy id để thao tác.
 
     Args:
         phone: số điện thoại dùng để lấy đơn hàng

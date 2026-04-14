@@ -28,7 +28,7 @@ async def get_business_rules(topic: str) -> dict:
     Tool này dùng để tra cứu các quy định nghiệp vụ liên quan đến:
     - Điều kiện nâng hạng thẻ (SEA, SKY, SUN)
     - Điều kiện duy trì hạng thẻ
-    - Quy tắc hạ hạng thẻ
+    - Quy tắc nâng, hạ hạng thẻ
     - Quy định về tài khoản tích lũy
     - Quy định về tour trọn gói
     - Các điều kiện xét hạng dựa trên giá trị giao dịch hoặc số lần sử dụng tour
@@ -46,64 +46,76 @@ async def get_business_rules(topic: str) -> dict:
     Returns:
         Nội dung quy tắc nghiệp vụ liên quan đến chủ đề để phục vụ phân tích và trả lời.
     """
-    business_rules = """ TÀI KHOẢN TÍCH LŨY
-    Là tài khoản ghi nhận tổng giá trị tích lũy dịch vụ và số lần sử dụng tour trọn gói
-    của khách hàng. Tài khoản này được dùng làm cơ sở để xét nâng hạng, duy trì hạng
-    hoặc hạ hạng thẻ thành viên.
+    business_rules = """ 
+## TÀI KHOẢN TÍCH LŨY
+Là tài khoản ghi nhận tổng giá trị tích lũy dịch vụ và số lần sử dụng tour trọn gói  
+của khách hàng. Tài khoản này được dùng làm cơ sở để xét nâng hạng, duy trì hạng  
+hoặc hạ hạng thẻ thành viên.
 
-    TOUR TRỌN GÓI
-    Là chương trình du lịch do Saigontourist tổ chức, bao gồm thời gian chuyến đi,
-    điểm đến, các điểm dừng chân, lưu trú, vận chuyển và các dịch vụ khác,
-    đã được xác định mức giá trước.
+---
 
-    HẠNG THẺ SEA
-    SEA CARD là hạng thẻ tiêu chuẩn dành cho khách hàng mở thẻ để trải nghiệm dịch vụ.
+## TOUR TRỌN GÓI
+Là chương trình du lịch do Saigontourist tổ chức, bao gồm thời gian chuyến đi,  
+điểm đến, các điểm dừng chân, lưu trú, vận chuyển và các dịch vụ khác,  
+đã được xác định mức giá trước.
 
-    Điều kiện đăng ký:
-    - Khách hàng đăng ký thông tin mở thẻ thành viên.
-    - Phát sinh tối thiểu 01 giao dịch dịch vụ bất kỳ.
+---
 
-    Thời hạn duy trì:
-    - Không giới hạn thời gian duy trì hạng thẻ (trừ khi có thông báo thay đổi từ Saigontourist).
+## Quan trọng khi xét nâng hạng thẻ:
+- Khách hàng không được phép nhảy bậc khi thăng hạng.  
+  Ví dụ: dù giá trị tích lũy đạt ≥ 100.000.000 VNĐ, nếu đang ở hạng SEA thì không thể nâng trực tiếp lên SUN.
+- Việc thăng hạng phải tuân theo thứ tự bắt buộc **SEA → SKY → SUN**.
+- Sau mỗi lần thăng hạng, giá trị tích lũy sẽ được đặt lại về 0 VNĐ để bắt đầu chu kỳ tích lũy mới.
 
-    HẠNG THẺ SKY
-    Điều kiện xét hạng SKY:
-    - Thẻ hiện tại phải là thẻ SEA.
-    - Tổng giá trị tích lũy >= 50.000.000 VNĐ
-    HOẶC
-    Sử dụng tour trọn gói >= 4 lần trong vòng 12 tháng.
+## HẠNG THẺ SEA
 
-    Điều kiện duy trì hạng SKY:
-    - Ít nhất 2 lần sử dụng tour trọn gói trong vòng 12 tháng
-    HOẶC
-    Tổng giá trị giao dịch >= 30.000.000 VNĐ trong vòng 12 tháng.
+**SEA CARD** là hạng thẻ tiêu chuẩn dành cho khách hàng mở thẻ để trải nghiệm dịch vụ.
 
-    Quy tắc hạ hạng:
-    - Trong vòng 12 tháng kể từ ngày đạt hạng SKY, nếu khách hàng
-    không đủ điều kiện nâng hạng SUN hoặc không đủ điều kiện duy trì hạng SKY,
-    hệ thống sẽ xét hạ xuống hạng SEA.
+### Điều kiện đăng ký:
+- Khách hàng đăng ký thông tin mở thẻ thành viên.
+- Phát sinh tối thiểu 01 giao dịch dịch vụ bất kỳ.
 
-    HẠNG THẺ SUN
-    Điều kiện xét hạng SUN:
-    - Thẻ hiện tại phải là thẻ SKY.
-    - Tổng giá trị tích lũy >= 100.000.000 VNĐ
-    HOẶC
-    Sử dụng tour trọn gói >= 6 lần trong vòng 12 tháng.
+### Thời hạn duy trì:
+- Không giới hạn thời gian duy trì hạng thẻ (trừ khi có thông báo thay đổi từ Saigontourist).
 
-    Điều kiện duy trì hạng SUN:
-    - Ít nhất 4 lần sử dụng tour trọn gói trong vòng 12 tháng
-    HOẶC
-    Tổng giá trị giao dịch >= 60.000.000 VNĐ trong vòng 12 tháng.
+---
 
-    Quy tắc hạ hạng:
-    - Trong vòng 12 tháng kể từ ngày đạt hạng SUN, nếu khách hàng
-    không đủ điều kiện duy trì hạng SUN thì hệ thống sẽ xét hạ xuống hạng SKY.
-    
-    Quan trọng:
-    - Khách hàng không được phép nhảy bậc khi thăng hạng.
-    Ví dụ: dù giá trị tích lũy đạt ≥ 100.000.000 VNĐ, nếu đang ở hạng SEA thì không thể nâng trực tiếp lên SUN.
-    - Việc thăng hạng phải tuân theo thứ tự bắt buộc SEA → SKY → SUN.
-    - Sau mỗi lần thăng hạng, giá trị tích lũy sẽ được đặt lại về 0 VNĐ để bắt đầu chu kỳ tích lũy mới.
+## HẠNG THẺ SKY
+
+### Điều kiện xét hạng SKY:
+- Thẻ hiện tại phải là thẻ SEA.
+- Tổng giá trị tích lũy >= 50.000.000 VNĐ  
+**HOẶC**  
+- Sử dụng tour trọn gói >= 4 lần trong vòng 12 tháng.
+
+### Điều kiện duy trì hạng SKY:
+- Ít nhất 2 lần sử dụng tour trọn gói trong vòng 12 tháng  
+**HOẶC**  
+- Tổng giá trị giao dịch >= 30.000.000 VNĐ trong vòng 12 tháng.
+
+### Quy tắc hạ hạng:
+- Trong vòng 12 tháng kể từ ngày đạt hạng SKY, nếu khách hàng  
+  không đủ điều kiện nâng hạng SUN hoặc không đủ điều kiện duy trì hạng SKY,  
+  hệ thống sẽ xét hạ xuống hạng SEA.
+
+---
+
+## HẠNG THẺ SUN
+
+### Điều kiện xét hạng SUN:
+- Thẻ hiện tại phải là thẻ SKY.
+- Tổng giá trị tích lũy >= 100.000.000 VNĐ  
+**HOẶC**  
+- Sử dụng tour trọn gói >= 6 lần trong vòng 12 tháng.
+
+### Điều kiện duy trì hạng SUN:
+- Ít nhất 4 lần sử dụng tour trọn gói trong vòng 12 tháng  
+**HOẶC**  
+- Tổng giá trị giao dịch >= 60.000.000 VNĐ trong vòng 12 tháng.
+
+### Quy tắc hạ hạng:
+- Trong vòng 12 tháng kể từ ngày đạt hạng SUN, nếu khách hàng  
+  không đủ điều kiện duy trì hạng SUN thì hệ thống sẽ xét hạ xuống hạng SKY.
     """
     business_rule_model = ChatOpenAI(
         model="openai/gpt-4o-mini",
