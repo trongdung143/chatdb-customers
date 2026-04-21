@@ -3,10 +3,18 @@ from fastmcp import FastMCP
 from datetime import datetime
 from setup import OPENROUTER_API_KEY
 from langchain_core.prompts import ChatPromptTemplate
-from langchain_core.callbacks import UsageMetadataCallbackHandler
 from utils import fix_model_name
 
 mcp = FastMCP("chatdb-mcp-server")
+
+model = ChatOpenAI(
+    model="openai/gpt-4o-mini",
+    temperature=0,
+    base_url="https://openrouter.ai/api/v1",
+    api_key=OPENROUTER_API_KEY,
+    streaming=True,
+    timeout=5.0,
+)
 
 
 @mcp.tool
@@ -117,15 +125,8 @@ Là chương trình du lịch do Saigontourist tổ chức, bao gồm thời gia
 - Trong vòng 12 tháng kể từ ngày đạt hạng SUN, nếu khách hàng  
   không đủ điều kiện duy trì hạng SUN thì hệ thống sẽ xét hạ xuống hạng SKY.
     """
-    business_rule_model = ChatOpenAI(
-        model="openai/gpt-4o-mini",
-        temperature=0,
-        base_url="https://openrouter.ai/api/v1",
-        api_key=OPENROUTER_API_KEY,
-        streaming=True,
-        timeout=5.0,
-    )
-    business_rule_prompt = ChatPromptTemplate.from_messages(
+
+    prompt = ChatPromptTemplate.from_messages(
         [
             (
                 "system",
@@ -156,22 +157,22 @@ Hãy tìm và trích xuất.
             ),
         ]
     )
-    callback = UsageMetadataCallbackHandler()
-    config = {
-        "callbacks": [callback],
-    }
-    chain = business_rule_prompt | business_rule_model
-    usage_metadata = {}
+    chain = prompt | model
     try:
         response = await chain.ainvoke(
-            input={"business_rules": business_rules, "topic": topic}, config=config
+            input={"business_rules": business_rules, "topic": topic}
         )
-        usage_metadata = fix_model_name(callback.usage_metadata)
     except Exception as e:
         print(repr(e))
-        return "Lấy thông tin nghiệp vụ thất bại!"
+        return {
+            "result": "Lấy thông tin nghiệp vụ thất bại!",
+            "usage_metadata": {},
+        }
 
-    return {"result": response.content, "usage_metadata": usage_metadata}
+    return {
+        "result": response.content,
+        "usage_metadata": {"openai/gpt-4o-mini": response.usage_metadata},
+    }
 
 
 mcp.run(transport="streamable-http", host="0.0.0.0", port=8123)
