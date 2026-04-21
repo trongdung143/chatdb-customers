@@ -204,7 +204,7 @@ async def get_detail_from_html(url: str) -> dict:
 @mcp.tool
 async def get_info_shop(query: str) -> dict:
     """
-    Lấy thông tin cửa hàng (số điện thoại, địa chỉ, email, giờ mở cửa, phương thức thanh toán...).
+    Lấy thông tin cửa hàng (số điện thoại, địa chỉ, email, giờ mở cửa, thông tin tài khoản ngân hàng, ...).
 
     Args:
         query: câu hỏi về thông tin cửa hàng
