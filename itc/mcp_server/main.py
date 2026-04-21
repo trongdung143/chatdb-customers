@@ -195,7 +195,9 @@ async def get_detail_from_html(url: str) -> dict:
         url = BASE_URL + url
         loader = WebBaseLoader(url)
         documents = loader.load()
-        return {"result": documents[0].page_content}
+        return {
+            "result": "Toàn bộ thông tin của sản phẩm:\n" + documents[0].page_content
+        }
     except Exception as e:
         print(e)
         return {"result": "Không thể lấy thông tin kĩ thuật của sản phẩm"}
