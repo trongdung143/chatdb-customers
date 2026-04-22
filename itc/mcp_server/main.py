@@ -196,7 +196,10 @@ async def get_detail_from_html(url: str) -> dict:
         loader = WebBaseLoader(url)
         documents = loader.load()
         return {
-            "result": "Toàn bộ thông tin của sản phẩm:\n" + documents[0].page_content
+            "result": {
+                "product_specification": documents[0].page_content,
+                "product_url": url,
+            }
         }
     except Exception as e:
         print(e)
