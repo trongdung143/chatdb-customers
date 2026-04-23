@@ -178,12 +178,13 @@ async def get_order(phone: str) -> dict:
 
 
 @mcp.tool
-async def get_detail_from_html(url: str) -> dict:
+async def get_detail_from_html(url: str, product_name: str) -> dict:
     """
     Lấy thông tin sản phẩm từ file HTML.
 
     Args:
         url: đường dẫn file html
+        product_name: tên sản phẩm cần lấy thông tin
 
     Returns:
         Kết quả thông tin của sản phẩm.
@@ -197,8 +198,8 @@ async def get_detail_from_html(url: str) -> dict:
         documents = loader.load()
         return {
             "result": {
-                "product_specification": documents[0].page_content,
-                "product_url": url,
+                "product_name": product_name,
+                "product_info": documents[0].page_content,
             }
         }
     except Exception as e:
