@@ -93,7 +93,7 @@ async def update_order(
     Cập nhật thông tin một đơn hàng theo Mã đơn hàng.
 
     Args:
-        order_code: Mã đơn hàng cần cập nhật (ví dụ: 6e5af66d-6391-4ec8-8874-380474f85512)
+        order_code: Mã đơn hàng cần cập nhật
         full_name: Họ tên khách hàng
         email: Email khách hàng
         phone: Số điện thoại
@@ -132,7 +132,7 @@ async def remove_order(phone: str, reject_reason: str, order_code: str) -> dict:
 
         phone: Số điện thoại của đơn hàng cần xóa
         reject_reason: lý do hủy đơn hàng (nếu có)
-        order_code: Mã đơn hàng cần xóa (ví dụ: 6e5af66d-6391-4ec8-8874-380474f85512)
+        order_code: Mã đơn hàng cần xóa
 
     Returns:
         Kết quả xử lý.
