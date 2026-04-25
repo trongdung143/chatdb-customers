@@ -1,6 +1,6 @@
 from fastmcp import FastMCP
 from datetime import datetime
-
+import uuid
 import signal
 import asyncio
 
@@ -61,8 +61,8 @@ async def insert_order(
         Kết quả xử lý.
     """
     result = await sql_service.execute(
-        "INSERT INTO OrderAis (FullName, Email, Phone, Address, Note, Products, CreatedDate, Status) "
-        "VALUES (:full_name, :email, :phone, :address, :note, :products, GETDATE(), :status)",
+        "INSERT INTO OrderAis (FullName, Email, Phone, Address, Note, Products, CreatedDate, Status, OrderCode) "
+        "VALUES (:full_name, :email, :phone, :address, :note, :products, GETDATE(), :status, :order_code)",
         {
             "full_name": full_name,
             "email": email,
@@ -71,6 +71,7 @@ async def insert_order(
             "note": note,
             "products": products,
             "status": 1,
+            "order_code": str(uuid.uuid4()),
         },
     )
     if result["success"]:
@@ -80,7 +81,7 @@ async def insert_order(
 
 @mcp.tool
 async def update_order(
-    id: int,
+    order_code: str,
     full_name: str,
     email: str,
     phone: str,
@@ -89,10 +90,10 @@ async def update_order(
     products: str,
 ) -> dict:
     """
-    Cập nhật thông tin một đơn hàng theo Id.
+    Cập nhật thông tin một đơn hàng theo Mã đơn hàng.
 
     Args:
-        id: Một số nguyên Id của đơn hàng cần cập nhật
+        order_code: Mã đơn hàng cần cập nhật (ví dụ: 6e5af66d-6391-4ec8-8874-380474f85512)
         full_name: Họ tên khách hàng
         email: Email khách hàng
         phone: Số điện thoại
@@ -105,9 +106,9 @@ async def update_order(
     """
     result = await sql_service.execute(
         "UPDATE OrderAis SET FullName=:full_name, Email=:email, Phone=:phone, "
-        "Address=:address, Note=:note, Products=:products WHERE Id=:id",
+        "Address=:address, Note=:note, Products=:products WHERE OrderCode=:order_code",
         {
-            "id": id,
+            "order_code": order_code,
             "full_name": full_name,
             "email": email,
             "phone": phone,
@@ -123,33 +124,38 @@ async def update_order(
 
 
 @mcp.tool
-async def remove_order(phone: str, reject_reason: str, id: str) -> dict:
+async def remove_order(phone: str, reject_reason: str, order_code: str) -> dict:
     """
-    Xóa một đơn hàng theo số điện thoại và Id của đơn hàng.
+    Xóa một đơn hàng theo số điện thoại và mã đơn hàng.
 
     Args:
 
         phone: Số điện thoại của đơn hàng cần xóa
         reject_reason: lý do hủy đơn hàng (nếu có)
-        id: Id của đơn hàng cần xóa
+        order_code: Mã đơn hàng cần xóa (ví dụ: 6e5af66d-6391-4ec8-8874-380474f85512)
 
     Returns:
         Kết quả xử lý.
     """
     check = await sql_service.execute(
-        "SELECT * FROM OrderAis WHERE Phone=:phone AND Id=:id",
-        {"phone": phone, "id": id},
+        "SELECT * FROM OrderAis WHERE Phone=:phone AND OrderCode=:order_code",
+        {"phone": phone, "order_code": order_code},
     )
 
     if not check:
-        return {"result": "Không tìm thấy đơn hàng để xóa kiểm lại Id"}
+        return {"result": "Không tìm thấy đơn hàng để xóa kiểm lại Mã đơn hàng"}
 
     if check and check[0]["Status"] == 3:
-        return {"result": "Đơn hàng đã bị xóa trước đó hãy kiểm tra lại Id"}
+        return {"result": "Đơn hàng đã bị xóa trước đó hãy kiểm tra lại Mã đơn hàng"}
 
     result = await sql_service.execute(
-        "UPDATE OrderAis SET Status=:status, RejectReason=:reject_reason WHERE Phone=:phone AND Id=:id",
-        {"phone": phone, "status": 3, "reject_reason": reject_reason, "id": id},
+        "UPDATE OrderAis SET Status=:status, RejectReason=:reject_reason WHERE Phone=:phone AND OrderCode=:order_code",
+        {
+            "phone": phone,
+            "status": 3,
+            "reject_reason": reject_reason,
+            "order_code": order_code,
+        },
     )
     if result["rowcount"] == 0:
         return {"result": "Không tìm thấy đơn hàng để xóa"}
@@ -160,7 +166,7 @@ async def remove_order(phone: str, reject_reason: str, id: str) -> dict:
 @mcp.tool
 async def get_order(phone: str) -> dict:
     """
-    Dùng để lấy toàn bộ đơn hàng theo số điện thoại hoặc lấy id để thao tác.
+    Dùng để lấy toàn bộ đơn hàng theo số điện thoại hoặc lấy mã đơn hàng để thao tác.
 
     Args:
         phone: số điện thoại dùng để lấy đơn hàng
