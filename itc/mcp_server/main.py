@@ -381,4 +381,6 @@ signal.signal(signal.SIGINT, handle_signal)
 signal.signal(signal.SIGTERM, handle_signal)
 
 
-mcp.run(transport="streamable-http", host="0.0.0.0", port=8123)
+# mcp.run(transport="streamable-http", host="0.0.0.0", port=8123)
+
+app = mcp.http_app()
