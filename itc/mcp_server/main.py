@@ -200,7 +200,7 @@ async def get_detail_from_html(url: str, product_name: str) -> dict:
             url = url.replace("https://itcshop.iteccom.vn/", "")
         BASE_URL = "http://192.168.1.100:7295/"
         url = BASE_URL + url
-        loader = WebBaseLoader(web_path=url, requests_kwargs={"timeout": 5})
+        loader = WebBaseLoader(web_path=url, requests_kwargs={"timeout": 1})
         documents = loader.load()
         return {
             "result": {
