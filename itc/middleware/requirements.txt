@@ -9,3 +9,4 @@ aioodbc
 pandas
 sqlalchemy 
 sqlparse
+gunicorn 

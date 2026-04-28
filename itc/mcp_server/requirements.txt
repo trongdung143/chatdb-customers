@@ -8,3 +8,4 @@ aioodbc
 sqlalchemy 
 pandas
 beautifulsoup4
+gunicorn 
