@@ -29,5 +29,5 @@ RUN uv add -r requirements.txt
 COPY . .
 ENV PORT=8001
 EXPOSE 8001
-CMD uv run gunicorn main:app -k uvicorn.workers.UvicornWorker -w 4 -b 0.0.0.0:$PORT --access-logfile - --error-logfile - --log-level info
+CMD uv run uvicorn main:app --host 0.0.0.0 --port $PORT
 
