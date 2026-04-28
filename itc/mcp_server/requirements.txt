@@ -8,3 +8,6 @@ aioodbc
 sqlalchemy 
 pandas
 beautifulsoup4
+markdownify
+readability-lxml
+httpx

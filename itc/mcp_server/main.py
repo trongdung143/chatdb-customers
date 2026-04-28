@@ -3,6 +3,7 @@ from datetime import datetime
 import uuid
 import signal
 import asyncio
+from urllib.parse import urljoin
 
 
 from langchain_core.prompts import ChatPromptTemplate
@@ -15,6 +16,10 @@ from conn_db import Database
 from documents import INFO_ABOUT_POLICY_DETAILS, SHOP_INFO
 from schema import FormatForPolicy
 from utils import normalize_usage, merge_usage, response_detail
+from bs4 import BeautifulSoup
+from markdownify import markdownify
+import httpx
+
 
 mcp = FastMCP("chatdb-mcp-server")
 db = Database()
@@ -199,13 +204,25 @@ async def get_detail_from_html(url: str, product_name: str) -> dict:
         if url.startswith("https://itcshop.iteccom.vn/"):
             url = url.replace("https://itcshop.iteccom.vn/", "")
         BASE_URL = "http://192.168.1.100:7295/"
-        url = BASE_URL + url
-        loader = WebBaseLoader(web_path=url, requests_kwargs={"timeout": 1})
-        documents = loader.load()
+        url = urljoin(BASE_URL, url)
+
+        async with httpx.AsyncClient() as client:
+            res = await client.get(url)
+            res.raise_for_status()
+            html = res.text
+
+        soup = BeautifulSoup(html, "html.parser")
+
+        for tag in soup(["script", "style", "nav", "footer", "header", "aside"]):
+            tag.decompose()
+
+        clean_html = str(soup)
+
+        md = markdownify(clean_html)
         return {
             "result": {
                 "product_name": product_name,
-                "product_info": documents[0].page_content,
+                "product_info": md,
             }
         }
     except Exception as e:
