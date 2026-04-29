@@ -165,12 +165,15 @@ Hãy tìm và trích xuất.
     except Exception as e:
         print(repr(e))
         return {
-            "result": "Lấy thông tin nghiệp vụ thất bại!",
+            "result": {
+                "topic": topic,
+                "content": "Không tìm thấy quy tắc nghiệp vụ liên quan.",
+            },
             "usage_metadata": {},
         }
 
     return {
-        "result": response.content,
+        "result": {"topic": topic, "content": response.content},
         "usage_metadata": {"openai/gpt-4o-mini": response.usage_metadata},
     }
 
