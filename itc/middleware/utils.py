@@ -6,8 +6,7 @@ import uuid
 import re
 import sqlparse
 
-
-BASE_URL = "https://itcshop.iteccom.vn/"
+BASE_URL = "https://itcshop.vn/"
 
 
 def dataframe_to_json(df: pd.DataFrame):
