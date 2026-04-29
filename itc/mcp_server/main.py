@@ -20,7 +20,6 @@ from bs4 import BeautifulSoup
 from markdownify import markdownify
 import httpx
 
-
 mcp = FastMCP("chatdb-mcp-server")
 db = Database()
 sql_service = SQLService(db)
@@ -80,8 +79,20 @@ async def insert_order(
         },
     )
     if result["success"]:
-        return {"result": "Xử lý thành công"}
-    return {"result": "Xử lý thất bại"}
+        return {
+            "result": {
+                "order_info": {
+                    "full_name": full_name,
+                    "email": email,
+                    "phone": phone,
+                    "address": address,
+                    "note": note,
+                    "products": products,
+                },
+                "message": "Thêm đơn hàng thành công",
+            }
+        }
+    return {"result": {"order_info": {}, "message": "Xử lý đơn hàng thất bại"}}
 
 
 @mcp.tool
@@ -123,9 +134,25 @@ async def update_order(
         },
     )
     if result["rowcount"] == 0:
-        return {"result": "Không tìm thấy đơn hàng để cập nhật"}
+        return {
+            "result": {
+                "message": "Không tìm thấy đơn hàng để cập nhật",
+            }
+        }
 
-    return {"result": "Cập nhật thành công"}
+    return {
+        "result": {
+            "order_info": {
+                "full_name": full_name,
+                "email": email,
+                "phone": phone,
+                "address": address,
+                "note": note,
+                "products": products,
+            },
+            "message": "Cập nhật thành công đơn hàng",
+        }
+    }
 
 
 @mcp.tool
@@ -148,10 +175,20 @@ async def remove_order(phone: str, reject_reason: str, order_code: str) -> dict:
     )
 
     if not check:
-        return {"result": "Không tìm thấy đơn hàng để xóa kiểm lại Mã đơn hàng"}
+        return {
+            "result": {
+                "order_info": {},
+                "message": "Không tìm thấy đơn hàng để xóa kiểm lại Mã đơn hàng",
+            }
+        }
 
     if check and check[0]["Status"] == 3:
-        return {"result": "Đơn hàng đã bị xóa trước đó hãy kiểm tra lại Mã đơn hàng"}
+        return {
+            "result": {
+                "order_info": {},
+                "message": "Đơn hàng đã bị xóa trước đó hãy kiểm tra lại Mã đơn hàng",
+            }
+        }
 
     result = await sql_service.execute(
         "UPDATE OrderAis SET Status=:status, RejectReason=:reject_reason WHERE Phone=:phone AND OrderCode=:order_code",
@@ -162,10 +199,18 @@ async def remove_order(phone: str, reject_reason: str, order_code: str) -> dict:
             "order_code": order_code,
         },
     )
-    if result["rowcount"] == 0:
-        return {"result": "Không tìm thấy đơn hàng để xóa"}
 
-    return {"result": "Xóa thành công"}
+    if result["rowcount"] == 0:
+        return {
+            "result": {"order_info": {}, "message": "Không tìm thấy đơn hàng để xóa"}
+        }
+
+    result = await sql_service.execute(
+        "SELECT * FROM OrderAis WHERE Phone=:phone AND OrderCode=:order_code",
+        {"phone": phone, "order_code": order_code},
+    )
+
+    return {"result": {"order_info": result, "message": "Xóa thành công đơn hàng"}}
 
 
 @mcp.tool
@@ -180,12 +225,12 @@ async def get_order(phone: str) -> dict:
         Các đơn hàng theo số điện thoại.
     """
     result = await sql_service.execute(
-        "SELECT * FROM OrderAis WHERE Phone=:phone",
+        "SELECT * FROM OrderAis WHERE Phone=:phone AND Status != 3",
         {"phone": phone},
     )
     if result and len(result) > 0:
-        return {"result": result}
-    return {"result": []}
+        return {"result": {"orders": result, "message": "Lấy đơn hàng thành công"}}
+    return {"result": {"orders": [], "message": "Không tìm thấy đơn hàng"}}
 
 
 @mcp.tool
@@ -227,7 +272,12 @@ async def get_detail_from_html(url: str, product_name: str) -> dict:
         }
     except Exception as e:
         print(e)
-        return {"result": "Không thể lấy thông tin kĩ thuật của sản phẩm"}
+        return {
+            "result": {
+                "product_name": product_name,
+                "message": "Không thể lấy thông tin kĩ thuật của sản phẩm",
+            }
+        }
 
 
 @mcp.tool
