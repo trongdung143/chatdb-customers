@@ -225,7 +225,7 @@ async def get_order(phone: str) -> dict:
         Các đơn hàng theo số điện thoại.
     """
     result = await sql_service.execute(
-        "SELECT * FROM OrderAis WHERE Phone=:phone AND Status != 3",
+        "SELECT FullName, Email, Phone, Address, Note, Products, OrderCode, CreatedDate FROM OrderAis WHERE Phone=:phone AND Status != 3",
         {"phone": phone},
     )
     if result and len(result) > 0:
