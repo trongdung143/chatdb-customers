@@ -214,9 +214,9 @@ async def remove_order(phone: str, reject_reason: str, order_code: str) -> dict:
 
 
 @mcp.tool
-async def get_order(phone: str) -> dict:
+async def get_all_order(phone: str) -> dict:
     """
-    Dùng để lấy toàn bộ đơn hàng theo số điện thoại hoặc lấy mã đơn hàng để thao tác.
+    Dùng để lấy toàn bộ đơn hàng theo số điện thoại.
 
     Args:
         phone: số điện thoại dùng để lấy đơn hàng
@@ -231,6 +231,36 @@ async def get_order(phone: str) -> dict:
     if result and len(result) > 0:
         return {"result": {"orders": result, "message": "Lấy đơn hàng thành công"}}
     return {"result": {"orders": [], "message": "Không tìm thấy đơn hàng"}}
+
+
+@mcp.tool
+async def get_all_order_by_code(order_code: str) -> dict:
+    """
+    Dùng để lấy thông tin đơn hàng theo mã đơn hàng.
+
+    Args:
+        order_code: mã đơn hàng dùng để lấy thông tin đơn hàng
+
+    Returns:
+        Thông tin đơn hàng theo mã đơn hàng.
+    """
+    result = await sql_service.execute(
+        "SELECT FullName, Email, Phone, Address, Note, Products, OrderCode, CreatedDate FROM OrderAis WHERE OrderCode=:order_code AND Status != 3",
+        {"order_code": order_code},
+    )
+    if result and len(result) > 0:
+        return {
+            "result": {
+                "orders": result,
+                "message": f"Lấy đơn hàng thành công với mã đơn hàng {order_code}",
+            }
+        }
+    return {
+        "result": {
+            "orders": [],
+            "message": f"Không tìm thấy đơn hàng với mã đơn hàng {order_code}",
+        }
+    }
 
 
 @mcp.tool
