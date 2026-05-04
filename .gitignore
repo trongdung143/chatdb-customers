@@ -14,3 +14,5 @@ wheels/
 notebook/
 static/index.html
 temp/
+temp.py
+temp.txt
